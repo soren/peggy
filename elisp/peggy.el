@@ -37,22 +37,41 @@
 (setq peggy-author "Søren Lund")
 
 (defun peggy ()
-  "Play the game."
+  "Swith to *peggy* buffer and play a game."
   (interactive)
+  (switch-to-buffer "*peggy*")
+  (peggy-mode))
+
+(defun peggy-mode ()
+  "Major mode for playing peggy."
+  (interactive)
+  (text-mode)
+  (make-peggy-variables)
+  (use-local-map peggy-mode-map)
+  (setq mode-name "Peggy")
+  (turn-on-auto-fill)
   (peggy-welcome)
-  (let (colors)
-    (setq colors '("red" "green" "blue" "yellow" "purple" "cyan"))
-    (setq color-keys-alist (mapcar (lambda (x) (cons (substring x 0 1) x)) colors))
-    (message "%s" (cdr (assoc "r" color-keys-alist)))))
+  (message "%s" (cdr (assoc "r" color-keys-alist))))
+
 
 (defun peggy-welcome ()
   "Initialize a new buffer and print welcome screen."
-  (let (buffer)
-    (setq buffer (get-buffer-create "*Peggy*"))
-    (switch-to-buffer buffer)
-    (erase-buffer)
     (insert (format "%s v%s - %s %s\nCommands: help, quit\n"
-		    peggy-program peggy-version peggy-copyright peggy-author))
-  nil))
+		    peggy-program peggy-version peggy-copyright peggy-author)))
+
+(defun make-peggy-variables ()
+  (make-local-variable 'colors)
+  (setq colors '("red" "green" "blue" "yellow" "purple" "cyan"))
+  (make-local-variable 'color-keys-alist)
+  (setq color-keys-alist (mapcar (lambda (x) (cons (substring x 0 1) x)) colors)))
+
+(defvar peggy-mode-map nil)
+(if peggy-mode-map
+    nil
+  (setq peggy-mode-map (make-sparse-keymap))
+  (define-key peggy-mode-map "\n" 'peggy-io)
+  (define-key peggy-mode-map "\r" 'peggy-io))
+
+(defun peggy-io nil)
 
 ;;; peggy.el ends here
