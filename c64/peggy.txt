@@ -1,0 +1,302 @@
+10 rem brain - the game of mastermind
+20 rem copyright (c) 2004 soren lund
+30 rem brain is free software; you can
+40 rem redistribute it and/or modify it
+50 rem under the terms of the gnu gpl
+60 rem as published by the fsf.
+70 rem brain is distributed without any
+80 rem warranty. see the gnu gpl for
+90 rem more details (do a "run 5000")
+99 :
+100 rem initialization
+110 dim c$(6),p$(6),g$(4),h$(10)
+120 gosub 8000: rem screen colors
+130 gosub 1500: rem meta variables
+140 gosub 1600: rem read colors
+150 gosub 1100: rem shuffle pegs
+160 gosub 1400: rem welcome screen
+199 :
+200 rem main program
+210 for n=1 to 10: rem main loop
+220 gosub 1300: rem prompt user
+230 if l$="quit" then 300
+240 gosub 1800: rem parse input
+250 if i <> 4 then 220
+260 gosub 1900: rem calculate score
+270 gosub 2000: rem update history
+280 if p=4 then 300
+290 next
+299 :
+300 rem end of game and clean up
+310 if n=11 then gosub 2100
+320 gosub 1700: rem print results
+330 print chr$(13);chr$(13)
+340 input " play again (y/n)";l$
+350 if l$<>"y" and l$<>"n" goto 340
+360 if l$="n" then 390
+370 gosub 1100: rem shuffle pegs
+380 goto 200
+390 print chr$(13);" bye.": end
+399 :
+1000 rem print pegs
+1010 fg=peek(646)
+1020 for i=1 to 4
+1030 print " ";p$(i);
+1040 next
+1050 poke 646,fg
+1060 return
+1099 :
+1100 rem fisher yates shuffle
+1110 for i=6 to 1 step -1
+1120 j=int(rnd(1)*i+1)
+1130 if i = j then 1170
+1140 t$=p$(i)
+1150 p$(i)=p$(j)
+1160 p$(j)=t$
+1170 next
+1180 return
+1199 :
+1200 rem check if v$ contains e$
+1210 for ii=1 to 6
+1220 if mid$(v$,ii,1)=e$ then ii=7
+1230 next
+1240 if ii<>8 then e$=""
+1250 return
+1299 :
+1300 rem prompt for and get guess
+1310 gosub 2100: rem print history
+1320 print chr$(13);" your guess #";n;
+1330 print "[";v$;"]";
+1340 input "";l$
+1350 return
+1399 :
+1400 rem print welcome screen
+1410 t$=pn$+" v"+pv$
+1420 gosub 2700: rem header
+1430 print " commands: ";
+1440 print "help, rule, info & quit"
+1450 return
+1499 :
+1500 rem setup meta variables
+1510 pn$="brain"
+1520 pv$="1.0.9"
+1530 pa$="soren lund"
+1540 pc$="copyright 2004-2010"
+1550 return
+1599 :
+1600 rem read color names and codes
+1610 for j=1 to 2
+1620 for i=1 to 6
+1630 read t$
+1640 c$(i)=t$ + c$(i)
+1650 if j=1 then v$=v$+mid$(c$(i),1,1)
+1660 if j=2 then p$(i)=c$(i)
+1670 next
+1680 next
+1690 return
+1699 :
+1700 rem print result screen
+1710 if p<4 then 1770
+1720 print chr$(13);" congratulations!"
+1730 print " you broke the code in";
+1740 print str$(n);
+1750 if n=1 then print " guess."
+1760 if n>1 then print " guesses."
+1770 print chr$(13);" the code was:"
+1780 gosub 1000
+1790 return
+1799 :
+1800 rem parse user input
+1810 gosub 2200: rem do commands
+1820 i=0: for j=1 to len(l$)
+1830 e$=mid$(l$,j,1)
+1840 gosub 1200: rem validate guess
+1850 if len(e$)=0 then 1880
+1860 i=i+1: g$(i)=e$
+1870 if i > 4 then j=len(l$)+1
+1880 next
+1890 return
+1899 :
+1900 rem calculate score
+1910 print: p=0: c=0
+1920 for i=1 to 4
+1930 if mid$(p$(i),2,1)=g$(i) then 1970
+1940 for j=1 to 4
+1950 if mid$(p$(j),2,1)<>g$(i) then1962
+1960 c=c+1: j=5
+1962 next: goto 1975
+1970 p=p+1
+1975 next
+1990 return
+1999 :
+2000 rem update game history
+2010 h$(n)=" "
+2020 if n<10 then h$(n)=h$(n)+" "
+2030 h$(n)=h$(n)+str$(n)+" "
+2040 for ii=1 to 4
+2050 h$(n)=h$(n)+g$(ii)
+2060 next
+2070 h$(n)=h$(n)+"   place: "+str$(p)
+2080 h$(n)=h$(n)+"   color: "+str$(c)
+2090 return
+2099 :
+2100 rem print game history
+2110 if n=1 then 2180
+2120 fg=peek(646)
+2130 poke 646,5
+2140 for ii=1 to n-1
+2150 print h$(ii)
+2160 next
+2170 poke 646,fg
+2180 return
+2199 :
+2200 rem do commands
+2210 ii=0
+2220 if l$="help" then ii=1
+2230 if l$="rule" then ii=2
+2240 if l$="info" then ii=3
+2250 on ii gosub 2300,2400,2500
+2260 if ii=0 then 2290
+2270 gosub 2600: rem wait for key press
+2280 gosub 1400: rem display welcome
+2290 return
+2299 :
+2300 rem display help
+2310 t$="help using brain"
+2320 gosub 2700: rem header
+2330 print " the program support";
+2335 print "s these commands:   "
+2340 print "  * help - displays ";
+2345 print "this help screen    "
+2350 print "  * rule - learn how";
+2355 print " to play this game  "
+2360 print "  * info - view copy";
+2365 print "right information   "
+2370 print "  * quit - quits the";
+2375 print " current game";chr$(13)
+2380 print " commands can be use";
+2385 print "d at any time.{space*6}"
+2390 return
+2399 :
+2400 rem display rules
+2410 t$="rules of the game"
+2420 gosub 2700:rem header
+2430 print " the computer create";
+2435 print "s a secret code.    "
+2440 print " the code consists o";
+2445 print "f four colors.{space*6}"
+2450 print " to win you must gue";
+2455 print "ss the secret code  "
+2460 print " in no more than ten";
+2465 print " turns.{space*13}"
+2470 print " there are six diffe";
+2475 print "rent colors: white, "
+2480 print " yellow, red, green,";
+2485 print " blue and orange.   "
+2490 return
+2499 :
+2500 rem display copyright information
+2510 t$="copyright information"
+2520 gosub 2700: rem header
+2530 print " brain is free softw";
+2535 print "are; you can{space*8}"
+2540 print " redistribute it and";
+2545 print "/or modify it under "
+2550 print " the terms of the gn";
+2555 print "u gpl as published  "
+2560 print " by the free softwar";
+2565 print "e foundation.{space*7}"
+2570 print " brain is distribute";
+2575 print "d without any{space*7}"
+2580 print " warranty. see the g";
+2585 print "nu gpl for more.    "
+2590 return
+2599 :
+2600 rem prompt and wait for keypress
+2610 print chr$(13);spc(8);"{green}";
+2620 print "press any key to continue";
+2630 get tt$
+2640 if tt$="" then 2630
+2650 print "{light green}";
+2660 return
+2699 :
+2700 rem display header
+2710 fg=peek(646)
+2715 poke 646,1
+2720 print "{clear}";chr$(13);
+2730 gosub 2800:rem horiz line
+2740 if len(t$)>38 then 2760
+2750 print spc(int((38-len(t$))/2))
+2760 print t$
+2770 gosub 2800:rem horiz line
+2775 print chr$(13)
+2780 poke 646,fg
+2790 return
+2799 :
+2800 rem print horiz line
+2810 print " -------------------";
+2820 print "-------------------"
+2830 return
+2899 :
+5000 rem documentation system
+5010 gosub 5100: rem setup screen
+5020 gosub 6000: gosub 5300
+5030 get t$: if t$="" goto 5030
+5040 print "{clear}"
+5050 gosub 5200
+5090 end
+5099 :
+5100 rem setup screen for doc. reading
+5110 sm = peek(53272)
+5120 fr = peek(53280)
+5130 bg = peek(53281)
+5140 fg = peek(646)
+5150 poke 53272,23: rem lowercase mode
+5160 poke 53280,15: rem lt. grey frame
+5170 poke 53281,15: rem light grey bg
+5180 poke 646,0: rem black fg
+5190 return
+5199 :
+5200 rem restore screen colors etc.
+5210 poke 53272,sm: rem case mode
+5220 poke 53280,fr: rem frame color
+5230 poke 53281,bg: rem bg color
+5240 poke 646,fg: rem fg color
+5250 return
+5290 return
+5299 :
+5300 rem print document
+5310 print "{clear}* ";dh$;chr$(13)
+5320 print dc$
+5330 return
+5399 :
+6000 dh$="{214}ariable usage"
+6010 dc$="{211}ingle letter variables are"
+6020 dc$=dc$+" considered global."
+6030 dc$=dc$+"{196}ouble letter variables,"
+6040 dc$=dc$+"i.e. {201*2} or {212*2}$ are local"
+6050 dc$=dc$+"and should only be used "
+6060 dc$=dc$+"in subroutines."
+6090 return
+8000 rem setup screen colors
+8010 poke 53280,6: rem blue frame
+8020 poke 53281,0: rem black bg
+8030 poke 646,13: rem light green fg
+8040 return
+8099 :
+9000 data "white","yellow","red"
+9010 data "green","blue","orange"
+9020 data "{white}", "{yellow}", "{red}"
+9030 data "{green}", "{blue}", "{orange}"
+9099 :
+9900 rem print save statement
+9910 gosub 1500
+9920 fv$=""
+9930 for i=1 to len(pv$)
+9935 c$=mid$(pv$,i,1)
+9940 if c$="." then 9950
+9945 fv$=fv$+c$
+9950 next i
+9960 print "save ";chr$(34);pn$;"-";
+9970 print fv$;".bas";chr$(34);",8"
+9990 return

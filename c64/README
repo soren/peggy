@@ -1,0 +1,6 @@
+This is a version of Mastermind for the Commodore 64.
+
+The source is stored as a ASCII text file (peggy.txt) and needs to be
+tokenized to be run. I'm using tok64 like this:
+
+tok64 peggy.txt
