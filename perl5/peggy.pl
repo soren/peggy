@@ -20,12 +20,15 @@ my %hidden_code_index = map { $_ => $index++ } @hidden_code;
 
 my %turns;
 my $valid_keys = join('',(keys %color_keys));
-my $prompt = "Code guess %2d [$valid_keys] ";
-for (my $turn = 1; $turn <= 1; $turn++) {
+my $prompt = " Your guess #%2d [$valid_keys] ";
+my @game_history = ();
+
+for (my $turn = 1; $turn <= 10; $turn++) {
   my $guess;
   do {
     printf $prompt,$turn;
     chomp($guess = <>);
+    print_rules() if $guess eq "rule";
     $guess = "" if $guess !~ /[$valid_keys]{4}/i;
   } until length($guess) == 4;
   my @guess = map { $color_keys{$_} } split '',$guess;
@@ -37,9 +40,13 @@ for (my $turn = 1; $turn <= 1; $turn++) {
 	$black_pegs++ : $white_pegs++;
     }
   }
-  print "B" for (1..$black_pegs);
-  print "W" for (1..$white_pegs);
+
+  push @game_history,  sprintf ("   %2d %s  Place: %d   Color: %d\n",
+				$turn, $guess, $black_pegs, $white_pegs);
+  print "\n\nx";
+  print $_ foreach @game_history;
   print "\n";
+
   if ($black_pegs == 4) {
     print "You won! ", join(',',@hidden_code),"\n";
     exit;
@@ -64,5 +71,31 @@ sub shuffle_colors {
 
 sub print_welcome_screen {
     printf " %s v%s - %s %s\n", $PROGRAM, $VERSION, $COPYRIGHT, $AUTHOR;
-    printf " Commands: help, quit\n"
+    printf " Commands: help, quit\n\n"
+}
+
+sub print_horiz_line {
+  print " --------------------------------------\n";
+}
+
+sub print_header {
+  my $title = shift;
+  my $indent = 0;
+  print_horiz_line;
+  $indent = int((38-length($title))/2) unless length($title) > 38;
+  printf "%s%s\n", (" " x $indent), $title;
+  print_horiz_line;
+}
+
+sub print_rules {
+  print_header("Rules of the Game");
+  print " The computer creates a secret code.\n";
+  print " The code consists of four colors.\n";
+  print " To win you must guess the secret code\n";
+  print " in no more than ten turns.\n";
+  print " There are six different colors: White,\n";
+  print " Yellow, Red, Green, Blue and Orange.\n";
+  print "\n        Press any key to continue";
+  <>;
+  print "\n";
 }
