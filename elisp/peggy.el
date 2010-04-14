@@ -51,7 +51,10 @@
   (setq mode-name "Peggy")
   (turn-on-auto-fill)
   (peggy-welcome)
-  (message "%s" (cdr (assoc "r" color-keys-alist))))
+  (insert (cdr (assoc "r" color-keys-alist)))
+  (insert "\n")
+  (insert (car hidden-code))
+  (insert (nth 2 hidden-code)))
 
 
 (defun peggy-welcome ()
@@ -63,7 +66,16 @@
   (make-local-variable 'colors)
   (setq colors '("red" "green" "blue" "yellow" "purple" "cyan"))
   (make-local-variable 'color-keys-alist)
-  (setq color-keys-alist (mapcar (lambda (x) (cons (substring x 0 1) x)) colors)))
+  (setq color-keys-alist (mapcar (lambda (x) (cons (substring x 0 1) x)) colors))
+  (setq hidden-code (shuffle-colors colors)))
+
+;; http://ozone.wordpress.com/2006/02/21/little-lisp-challenge/
+(defun shuffle-colors (colors)
+  (loop for i below (length colors) do
+	(rotatef
+	 (elt colors i)
+	 (elt colors (random (length colors)))))
+  (nthcdr (- (length colors) 4) colors))
 
 (defvar peggy-mode-map nil)
 (if peggy-mode-map
