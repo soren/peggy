@@ -32,9 +32,6 @@
 ;;; Code:
 
 (setq peggy-version 1.0)
-(setq peggy-program "Brain")
-(setq peggy-copyright "Copyright 2010")
-(setq peggy-author "Søren Lund")
 
 (defun peggy ()
   "Swith to *peggy* buffer and play a game."
@@ -55,9 +52,10 @@
 
 
 (defun peggy-welcome ()
-  "Initialize a new buffer and print welcome screen."
-    (insert (format "%s v%s - %s %s\nCommands: help, quit\n"
-		    peggy-program peggy-version peggy-copyright peggy-author)))
+  "Print welcome screen."
+  (insert (format "Peggy v%s - Copyright (c) 2010 Søren Lund\n" peggy-version )
+	  "Commands: help, quit\n"))
+
 
 (defun make-peggy-variables ()
   (make-local-variable 'colors)
