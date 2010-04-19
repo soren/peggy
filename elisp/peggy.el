@@ -48,11 +48,20 @@
   (setq mode-name "Peggy")
   (turn-on-auto-fill)
   (peggy-welcome)
+  (peggy-query)
   (insert (cdr (assoc "r" color-keys-alist)))
   (insert "\n")
   (insert (car hidden-code))
-  (insert (nth 2 hidden-code)))
+  (insert (nth 2 hidden-code))
+  (peggy-confirm-quit))
 
+(defun peggy-query ()
+  "Query the user for some input."
+  (insert (read-string "Your guess: ")))
+
+(defun peggy-confirm-quit ()
+  "Really quit or continue."
+  (y-or-n-p "Do you want to quit?"))
 
 (defun peggy-welcome ()
   "Print welcome screen."
