@@ -4,3 +4,8 @@ The source is stored as a ASCII text file (peggy.txt) and needs to be
 tokenized to be run. I'm using tok64 like this:
 
 tok64 peggy.txt
+
+You could also run it using cbmbasic. But then you need the source in
+UPPER CASE:
+
+cat peggy.txt | tr [:lower:] [:upper:] | sed -e 's/{SPACE\*[0-9]*}/ /g' -e 's/{[A-Z ]*}//g' > PEGGY.BAS
